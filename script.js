@@ -1,6 +1,20 @@
 const input = document.getElementById('number');
 const convertBtn = document.getElementById('convert-btn');
 const output = document.getElementById('output');
+const togglebutton = document.querySelector('.toggle')
+let mode = 'light' ;
+
+togglebutton.addEventListener('click',()=>{
+    if(mode ==='light'){
+        document.querySelector('body').style.backgroundColor = "black";
+        mode  = "dark";
+        togglebutton.innerHTML  = "light mode"
+    }else{
+        document.querySelector('body').style.backgroundColor = "white";
+        mode = 'light'
+         togglebutton.innerHTML  = "Dark mode"
+    }
+})
 
 convertBtn.addEventListener('click', () => {
     let str_number = input.value;
