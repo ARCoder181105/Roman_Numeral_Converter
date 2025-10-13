@@ -1,77 +1,121 @@
 const input = document.getElementById('number');
 const convertBtn = document.getElementById('convert-btn');
 const output = document.getElementById('output');
-const togglebutton = document.querySelector('.toggle')
-let mode = 'light' ;
+const toggleBtn = document.querySelector('.toggle-btn');
+const toggleIcon = document.querySelector('.toggle-icon');
+const toggleText = document.querySelector('.toggle-text');
+const body = document.body;
 
-togglebutton.addEventListener('click',()=>{
-    if(mode ==='light'){
-        document.querySelector('body').style.backgroundColor = "black";
-        mode  = "dark";
-        togglebutton.innerHTML  = "light mode"
-    }else{
-        document.querySelector('body').style.backgroundColor = "white";
-        mode = 'light'
-         togglebutton.innerHTML  = "Dark mode"
+let mode = 'light';
+
+// Dark mode toggle functionality
+toggleBtn.addEventListener('click', () => {
+    if (mode === 'light') {
+        body.classList.add('dark-mode');
+        mode = 'dark';
+        toggleIcon.textContent = '☀️';
+        toggleText.textContent = 'Light Mode';
+    } else {
+        body.classList.remove('dark-mode');
+        mode = 'light';
+        toggleIcon.textContent = '🌙';
+        toggleText.textContent = 'Dark Mode'; // Fixed: Capital "M"
     }
-})
+    
+    // Save preference to localStorage
+    localStorage.setItem('mode', mode);
+});
 
-convertBtn.addEventListener('click', () => {
-    let str_number = input.value;
+// Check for saved mode preference
+window.addEventListener('DOMContentLoaded', () => {
+    const savedMode = localStorage.getItem('mode');
+    if (savedMode === 'dark') {
+        body.classList.add('dark-mode');
+        mode = 'dark';
+        toggleIcon.textContent = '☀️';
+        toggleText.textContent = 'Light Mode';
+    }
+});
+
+// Conversion functionality
+convertBtn.addEventListener('click', convertNumber);
+input.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') {
+        convertNumber();
+    }
+});
+
+function convertNumber() {
+    let str_number = input.value.trim();
+    output.className = 'output';
 
     if (str_number === "") {
-        output.innerHTML = "<b>Please enter a valid number</b>";
+        showError("Please enter a valid number");
         return;
     }
 
     let number = parseInt(str_number);
 
     if (isNaN(number)) {
-        output.innerHTML = "<b>Please enter a valid number</b>";
+        showError("Please enter a valid number");
         return;
     }
 
     if (number > 3999) {
-        output.innerHTML = "<b>Please enter a number less than or equal to 3999</b>";
+        showError("Please enter a number less than or equal to 3999");
         return;
     }
 
-    if(number<=0){
-        output.innerHTML = "<b>Please enter a number greater than or equal to 1</b>"
+    if (number <= 0) {
+        showError("Please enter a number greater than or equal to 1");
         return;
     }
 
-    const dataSet = {
-        1000: "M",
-        900: "CM",
-        500: "D",
-        400: "CD",
-        100: "C",
-        90: "XC",
-        50: "L",
-        40: "XL",
-        10: "X",
-        9: "IX",
-        5: "V",
-        4: "IV",
-        1: "I"
-    };
+    const romanNumeral = convertToRoman(number);
+    showResult(romanNumeral);
+}
 
-    let ans = "";
+function convertToRoman(num) {
+    const romanNumerals = [
+        { value: 1000, numeral: 'M' },
+        { value: 900, numeral: 'CM' },
+        { value: 500, numeral: 'D' },
+        { value: 400, numeral: 'CD' },
+        { value: 100, numeral: 'C' },
+        { value: 90, numeral: 'XC' },
+        { value: 50, numeral: 'L' },
+        { value: 40, numeral: 'XL' },
+        { value: 10, numeral: 'X' },
+        { value: 9, numeral: 'IX' },
+        { value: 5, numeral: 'V' },
+        { value: 4, numeral: 'IV' },
+        { value: 1, numeral: 'I' }
+    ];
 
-    while (number > 0) {
-        let maxKey = 0;
+    let result = '';
 
-        for (let key in dataSet) {
-            let numKey = parseInt(key);
-            if (numKey <= number && numKey > maxKey) {
-                maxKey = numKey;
-            }
+    for (const { value, numeral } of romanNumerals) {
+        while (num >= value) {
+            result += numeral;
+            num -= value;
         }
-
-        number -= maxKey;
-        ans += dataSet[maxKey];
     }
 
-    output.innerHTML = `<b>${ans}</b>`; 
-});
+    return result;
+}
+
+function showError(message) {
+    output.innerHTML = `<b>${message}</b>`;
+    output.classList.add('error');
+}
+
+function showResult(romanNumeral) {
+    output.innerHTML = `<b>${romanNumeral}</b>`;
+    output.classList.add('success');
+    
+    // Add animation effect
+    output.style.transform = 'scale(1.05)';
+    setTimeout(() => {
+        output.style.transform = 'scale(1)';
+    }, 200);
+}
